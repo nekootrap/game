@@ -187,8 +187,6 @@ class PauseView(arcade.View):
     def close1(self,event):
         arcade.close_window()
         
-
-        
 class GameView(arcade.View, arcade.Window):
     def __init__(self):
         super().__init__()
@@ -202,9 +200,7 @@ class GameView(arcade.View, arcade.Window):
         self.is_alive = True
         self.camera = None
         self.s = 0
-        self.heart_list = None
-        self.heart = None
-        self.hearts = 0
+        self.hearts = 3
         
         self.left_pressed = False
         self.right_pressed = False
@@ -220,20 +216,6 @@ class GameView(arcade.View, arcade.Window):
         self.jump = arcade.load_sound(":resources:sounds/jump3.wav")
         self.kill_sound = arcade.load_sound(":resources:sounds/fall1.wav")
         self.coin_sonnd = arcade.load_sound(":resources:sounds/coin5.wav")
-        self.heart = arcade.Sprite(":resources:images/enemies/slimeBlue.png")
-        
-        self.heart_list.append(arcade.Sprite(":resources:images/enemies/slimeBlue.png",
-                                             center_x=1000,
-                                             center_y=500,
-                                             scale=0.6))
-        self.heart_list.append(arcade.Sprite(":resources:images/enemies/slimeBlue.png",
-                                             center_x=1100,
-                                             center_y=500,
-                                             scale=0.6))
-        self.heart_list.append(arcade.Sprite(":resources:images/enemies/slimeBlue.png",
-                                             center_x=1200,
-                                             center_y=500,
-                                             scale=0.6))
             
         map_name = ":resources:/tiled_maps/map.json"
         tile_map = arcade.load_tilemap(map_name, SPRITE_SCALING_TILES)
@@ -267,6 +249,14 @@ class GameView(arcade.View, arcade.Window):
                                            0.3,
                                            center_x=709,
                                            center_y=55))
+        self.saw_list.append(arcade.Sprite(":resources:images/enemies/sawHalf.png",
+                                           0.3,
+                                           center_x=1361,
+                                           center_y=55))
+        self.saw_list.append(arcade.Sprite(":resources:images/enemies/sawHalf.png",
+                                           0.3,
+                                           center_x=1535,
+                                           center_y=55))
         
         damping = DEFAULT_DAMPING
         graviti = (0, -GRAVITY)
@@ -286,6 +276,22 @@ class GameView(arcade.View, arcade.Window):
                                             friction=WALL_FRICTION,
                                             collision_type='wall',
                                             body_type=arcade.PymunkPhysicsEngine.STATIC)
+        
+        self.physics_engine.add_sprite_list(self.saw_list,
+                                            collision_type='saw')
+
+        def saw_hit_handler(spike_sprite, _player_sprite, _arbiter, _space, _data):
+            if self.hearts > 1:
+                self.hearts -= 1
+                self.setup()
+                return
+            else:
+                self.kill_sound.play()
+                self.is_alive = False
+                view = GameOverView()
+                self.window.show_view(view)
+
+        self.physics_engine.add_collision_handler("saw", "player", post_handler=saw_hit_handler)
         
     def on_key_press(self,key,modifiers):
         if key == arcade.key.LEFT:
@@ -316,22 +322,19 @@ class GameView(arcade.View, arcade.Window):
         
             self.center_camera_to_player()
         
-            if arcade.check_for_collision_with_list(self.player, self.saw_list):
-                for self.heart in self.heart_list:
-                    self.heart.remove_from_sprite_lists()
-                if len(self.heart_list) == 0:
-                    self.kill_sound.play()
-                    self.player.center_x = 20
-                    self.player.center_y = 200
-                    self.player.on_update()
-                    self.is_alive = False
-                    view=GameOverView()
-                    self.window.show_view(view)
+            # if arcade.check_for_collision_with_list(self.player, self.saw_list):
+            #     self.hearts -= 1
+                    
+            #     if self.hearts == 0:
+            #         self.kill_sound.play()
+            #         self.is_alive = False
+            #         view = GameOverView()
+            #         self.window.show_view(view)
             
             
             coins_hit = arcade.check_for_collision_with_list(
-                self.player, self.coin_list
-            )
+                self.player, self.coin_list)
+            
             for coin in coins_hit:
                 self.coin_sonnd.play()
                 coin.remove_from_sprite_lists()
@@ -377,20 +380,25 @@ class GameView(arcade.View, arcade.Window):
         self.player.draw()
         self.camera.use()
         self.heart_list.draw()
-        arcade.draw_text(f'монеты: {self.s}/6',
-                         start_x=int(self.player.center_x - 50),
-                         start_y=10,
-                         font_size=15,
-                         color=arcade.color.BLACK)
-        arcade.create_text_sprite(f'монеты: {self.s}/6',
-                                  start_x=50,
-                                  start_y=10,
-                                  color=arcade.color.BLACK,
-                                  anchor_x='left')
-        # arcade.create_text_image()
         
-window=arcade.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE)
-start_view=InstructionView()
+        arcade.draw_text(
+            f'монеты: {self.s}/6',
+            self.camera.position.x + 10,
+            10,
+            arcade.color.BLACK,
+            20
+        )
+        
+        arcade.draw_text(
+            f'жизни: {self.hearts}',
+            self.camera.position.x + 10,
+            540,
+            arcade.color.BLACK,
+            20
+        )
+        
+window = arcade.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE)
+start_view = InstructionView()
 window.show_view(start_view)
 arcade.run()
     
