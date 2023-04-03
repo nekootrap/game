@@ -53,7 +53,7 @@ class InstructionView(arcade.View):
         quit_button = arcade.gui.UIFlatButton(text="Выход", width=200)
         self.v_box.add(quit_button)
 
-        quit_button.on_click = self.close
+        quit_button.on_click = self.close1
 
     def on_draw(self):
         self.clear()
@@ -72,7 +72,7 @@ class InstructionView(arcade.View):
         game_view.setup()
         self.window.show_view(game_view)
 
-    def close(self, event):
+    def close1(self, event):
         arcade.close_window()
 
 
@@ -96,8 +96,8 @@ class GameOverView(arcade.View):
         self.v_box.add(main_screen.with_space_around(bottom=20))
 
         start_over.on_click = self.on_click_open
-        main_screen.on_click = self.close
-
+        main_screen.on_click = self.close1
+        
     def on_draw(self):
         self.clear()
         self.manager.draw()
@@ -139,7 +139,7 @@ class GameWinView(arcade.View):
         self.v_box.add(main_screen.with_space_around(bottom=20))
 
         start_over.on_click = self.on_click_open
-        main_screen.on_click = self.close
+        main_screen.on_click = self.close1
 
     def on_draw(self):
         self.clear()
@@ -153,7 +153,7 @@ class GameWinView(arcade.View):
             anchor_x="center"
         )
 
-    def close(self, event):
+    def close1(self, event):
         arcade.close_window()
 
     def on_click_open(self, event):
@@ -183,7 +183,7 @@ class PauseView(arcade.View):
         self.v_box.add(main_screen.with_space_around(bottom=20))
 
         start_over.on_click = self.on_click_open
-        main_screen.on_click = self.close
+        main_screen.on_click = self.close1
 
     def on_draw(self):
         self.clear()
@@ -199,6 +199,9 @@ class PauseView(arcade.View):
 
     def on_click_open(self, event):
         self.window.show_view(self.game_view)
+
+    def close1(self, event):
+        arcade.close_window()
 
 
 class GameView(arcade.View, arcade.Window):
@@ -367,7 +370,7 @@ class GameView(arcade.View, arcade.Window):
                     self.kill_sound.play()
                     self.player.center_x = 20
                     self.player.center_y = 200
-                    self.player.update()
+                    self.player.on_update()
                     self.is_alive = False
                     view = GameOverView()
                     self.window.show_view(view)
@@ -429,6 +432,13 @@ class GameView(arcade.View, arcade.Window):
             font_size=15,
             color=arcade.color.BLACK
         )
+
+        arcade.create_text_sprite(f'монеты: {self.s}/6',
+                                  start_x=50,
+                                  start_y=10,
+                                  color=arcade.color.BLACK,
+                                  anchor_x='left')
+        # arcade.create_text_image()
 
 
 window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
