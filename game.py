@@ -97,7 +97,7 @@ class GameOverView(arcade.View):
 
         start_over.on_click = self.on_click_open
         main_screen.on_click = self.close1
-        
+
     def on_draw(self):
         self.clear()
         self.manager.draw()
