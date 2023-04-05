@@ -1,8 +1,10 @@
+
 import arcade
 import arcade.gui
 from arcade.experimental.lights import Light, LightLayer
 import random
 import math
+
 SCREEN_TITLE = "Игра"
 
 SPRITE_IMAGE_SIZE = 128
@@ -47,8 +49,8 @@ PARTICLE_COLORS = [arcade.color.ORANGE,
                    arcade.color.LAVA,
                    arcade.color.PERIDOT,
                    arcade.color.MUSTARD]
-
 PARTICLE_SPARKLE_CHANCE = 0.02
+
 
 class Particle(arcade.SpriteCircle):
     def __init__(self, my_list):
@@ -244,6 +246,7 @@ class PauseView(arcade.View):
         
         
         start_over.on_click = self.on_click_open
+        main_screen.on_click = self.close3
         
     def on_draw(self):
         self.clear()
@@ -257,6 +260,10 @@ class PauseView(arcade.View):
         
     def on_click_open(self,event):
         self.window.show_view(self.game_view)
+        
+    def close3(self,event):
+        self.is_alive = False
+        arcade.close_window()
         
 class GameView(arcade.View, arcade.Window):
     def on_show_view(self):
